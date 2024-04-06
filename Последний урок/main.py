@@ -20,6 +20,7 @@ login_manager.init_app(app)
 
 @app.route("/")
 def index():
+    db_session.global_init('test.db')
     session = db_session.create_session()
     users = session.query(User).all()
     names = {}
