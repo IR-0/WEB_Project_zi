@@ -11,6 +11,6 @@ class Requ(SqlAlchemyBase, SerializerMixin):
     title = sqlalchemy.Column(sqlalchemy.String)
     content = sqlalchemy.Column(sqlalchemy.String)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime)
-    id_for = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"))
+    id_for = sqlalchemy.Column(sqlalchemy.Integer)  # , sqlalchemy.ForeignKey("users.id")
     id_in = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"))
     user = orm.relationship('User')
