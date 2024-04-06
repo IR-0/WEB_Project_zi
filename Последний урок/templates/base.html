@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>АТП</title>
+</head>
+<body>
+<nav>
+    <p><a class="btn btn-primary" href="/about">О нас</a></p>
+    <p><a class="btn btn-primary" href="/news">Новости</a></p>
+    <br>
+    <p><a class="btn btn-primary" href="/cabinet">Личный кабинет</a></p>
+    {% if current_user.is_authenticated %}
+        <a class="navbar-brand" href="/logout"> {{ current_user.name }}</a>
+    {% else %}
+        <p>
+            <a class="btn btn-primary" href="/register">Зарегистрироваться</a>
+            <a class="btn btn-primary" href="/login">Войти</a>
+        </p>
+    {% endif %}
+</nav>
+{% block content %} {%endblock%}
+</body>
+</html>
