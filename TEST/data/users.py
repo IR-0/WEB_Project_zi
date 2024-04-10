@@ -20,6 +20,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     modified_date = sqlalchemy.Column(sqlalchemy.DateTime)
     login = sqlalchemy.Column(sqlalchemy.String, unique=True)
     type = sqlalchemy.Column(sqlalchemy.Integer)
+    other = sqlalchemy.Column(sqlalchemy.String)
 
     def __repr__(self):
         return f'<User> {self.id} {self.name} {self.email}'

@@ -84,10 +84,8 @@ def reqister():
             name=form.name.data,
             surname=form.surname.data,
             age=form.age.data,
-            position=form.position.data,
             email=form.email.data,
-            speciality=form.speciality.data,
-            address=form.address.data
+            speciality=form.speciality.data
         )
         user.set_password(form.password.data)
         db_sess.add(user)
@@ -122,7 +120,7 @@ def addjob():
     form = JobsForm()
     if form.validate_on_submit():
         return redirect('/')
-    return render_template('addjob.html',
+    return render_template('addnews.html',
                            title='Добавление работы',
                            form=form,
                            message='Проверьте корректность заполнения полей')
@@ -139,7 +137,7 @@ def edit_job(ids):
 
 
 def main():
-    db_session.global_init("db/mars_explorer_.db")
+    db_session.global_init("db/test.db")
 
     app.run()
 
