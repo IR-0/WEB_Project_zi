@@ -2,9 +2,15 @@ from flask import Flask, render_template, redirect, request, abort
 from flask_restful import Api
 from data import db_session
 from data.users import User
+from data.news import News
+from data.requ import Requ
+from data.autos import Autos
 from forms.user import RegisterForm
+from forms.new import NewsForm
+from forms.req import RequForm
 from flask_login import LoginManager, login_required, logout_user, login_user, current_user
 from loginform import LoginForm
+import datetime
 
 
 app = Flask(__name__)
@@ -16,46 +22,23 @@ login_manager.init_app(app)
 
 @app.route("/")
 def index():
-    db_session.global_init('test.db')
-    session = db_session.create_session()
-    users = session.query(User).all()
-    names = {}
-    for name in users:
-        names[name.id] = (name.surname, name.name)
-    return render_template("index.html", names=names)
-
-
-@app.route('/about')
-def about():
-    return render_template("about.html")
+    return render_template("index.html")
 
 
 @app.route('/news')
 def news():
-    return render_template("news.html")
+    form = NewsForm()
+    return render_template("news.html", form=form)
 
 
 @app.route('/req')
 def req():
-    form = RegisterForm()
-    if form.validate_on_submit():
-        db_sess = db_session.create_session()
-        """
-        if db_sess.query(User).filter(User.email == form.email.data).first():
-            return render_template('register.html', title='Register', form=form,
-                                   message="This user already exists")
-        
-        user = User(
-            name=form.name.data,
-            surname=form.surname.data,
-            age=form.age.data,
-            position=form.position.data,
-            email=form.email.data,
-            speciality=form.speciality.data,
-            address=form.address.data
-        )
-    """
-    return render_template("req.html", form=form)
+    return render_template("req.html")
+
+
+@app.route('/autos')
+def autos():
+    return render_template("autos.html")
 
 
 @app.route('/cabinet')
@@ -75,22 +58,23 @@ def reqister():
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
             return render_template('register.html', title='Register', form=form,
-                                   message="Passwords don't match")
+                                   message="Пароли не совпадают")
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
             return render_template('register.html', title='Register', form=form,
-                                   message="This user already exists")
+                                   message="Адресс электронной почты уже используется")
         user = User(
             name=form.name.data,
             surname=form.surname.data,
             age=form.age.data,
+            login=form.login.data,
             email=form.email.data,
-            speciality=form.speciality.data
+            modified_data=datetime.date.today()
         )
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
-        return redirect('/login')
+        return redirect('/')
     return render_template('register.html', title='Регистрация', form=form)
 
 
@@ -114,26 +98,134 @@ def login():
     return render_template('login.html', form=form)
 
 
-'''
-@app.route('/addjob', methods=['GET', 'POST'])
-def addjob():
-    form = JobsForm()
-    if form.validate_on_submit():
-        return redirect('/')
-    return render_template('addnews.html',
-                           title='Добавление работы',
-                           form=form,
-                           message='Проверьте корректность заполнения полей')
-
-
-@app.route('/job/<int:id>', methods=['GET', 'POST'])
+@app.route('/requ',  methods=['GET', 'POST'])
 @login_required
-def edit_job(ids):
-    form = JobsForm()
+def add_requ():
+    form = RequForm()
     if form.validate_on_submit():
-        pass
-    return render_template('addjobs.html', title='Редактирование новости', form=form)
-'''
+        db_sess = db_session.create_session()
+        requ = Requ()
+        requ.title = form.title.data
+        requ.content = form.content.data
+        requ.data_on = datetime.date.today()
+        current_user.news.append(news)
+        db_sess.merge(current_user)
+        db_sess.commit()
+        return redirect('/')
+    return render_template('requ.html', title='Добавление заказа',
+                           form=form)
+
+
+@app.route('/requ/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_requ(id):
+    form = RequForm()
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        requ = db_sess.query(Requ).filter(News.id == id,
+                                          News.id_for == current_user
+                                          ).first()
+        if requ:
+            form.title.data = requ.title
+            form.content.data = requ.content
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        requ = db_sess.query(Requ).filter(News.id == id,
+                                          News.id_for == current_user
+                                          ).first()
+        if requ:
+            requ.title = form.title.data
+            requ.content = form.content.data
+            db_sess.commit()
+            return redirect('/')
+        else:
+            abort(404)
+    return render_template('requ.html',
+                           title='Редактирование заказа',
+                           form=form
+                           )
+
+
+@app.route('/requ_delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def requ_delete(id):
+    db_sess = db_session.create_session()
+    requ = db_sess.query(Requ).filter(News.id == id,
+                                      News.id_for == current_user
+                                      ).first()
+    if requ:
+        db_sess.delete(requ)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/')
+
+
+@app.route('/news',  methods=['GET', 'POST'])
+@login_required
+def add_news():
+    form = NewsForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        news = News()
+        news.title = form.title.data
+        news.content = form.content.data
+        news.data_on = datetime.date.today()
+        current_user.news.append(news)
+        db_sess.merge(current_user)
+        db_sess.commit()
+        return redirect('/')
+    return render_template('news.html', title='Добавление новости',
+                           form=form)
+
+
+@app.route('/news/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_news(id):
+    form = NewsForm()
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        news = db_sess.query(News).filter(News.id == id,
+                                          News.id_whom == current_user
+                                          ).first()
+        if news:
+            form.title.data = news.title
+            form.content.data = news.content
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        news = db_sess.query(News).filter(News.id == id,
+                                          News.id_whom == current_user
+                                          ).first()
+        if news:
+            news.title = form.title.data
+            news.content = form.content.data
+            db_sess.commit()
+            return redirect('/')
+        else:
+            abort(404)
+    return render_template('news.html',
+                           title='Редактирование новости',
+                           form=form
+                           )
+
+
+@app.route('/news_delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def news_delete(id):
+    db_sess = db_session.create_session()
+    news = db_sess.query(News).filter(News.id == id,
+                                      News.id_whom == current_user
+                                      ).first()
+    if news:
+        db_sess.delete(news)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/')
 
 
 def main():
