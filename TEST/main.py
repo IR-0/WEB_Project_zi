@@ -29,9 +29,18 @@ def index():
 def news():
     form = NewsForm()
     db_sess = db_session.create_session()
-    paper = db_sess.query(News).all()  # ВОЗВРАЩАЕТ СПИСОК КЛАССОВ НЬЮС
-    print(paper[0].title, '=========================================================================================')
-    return render_template("news.html", form=form, paper=paper)
+    par = db_sess.query(News).all()  # ВОЗВРАЩАЕТ СПИСОК КЛАССОВ НЬЮС
+    paper = []
+    for elem in par:
+        dictt = {}
+        dictt['title'] = elem.title
+        dictt['content'] = elem.content
+        dictt['data_on'] = elem.data_on
+        dictt['id_whom'] = elem.id_whom
+        paper.append(dictt)
+    print(paper, '=========================================================================================')
+    return render_template("news.html", form=form, paper=paper)  # TODO как передать аргументы в news.html (32ая строка)
+# TODO и в cabinet.html как передать адрес картинки в src (13 строка)
 
 
 @app.route('/req')

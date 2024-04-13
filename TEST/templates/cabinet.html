@@ -11,9 +11,15 @@
     {% if current_user.is_authenticated %}
 
         <a class="navbar-brand" href="/logout">Выйти из аккаунта</a>
-    <h4>{{ current_user.name }} {{ current_user.surname }}</h4>
+    {% if current_user.other %}
+    {% if current_user.other[image] %}
+        <img src="{url_for('static', filename='img/(corrent_user.id).jpeg')}" >
+    {% endif %}
+    {% endif %}
+    <h4>Здравствуйте, {{ current_user.name }} {{ current_user.surname }}</h4>
+
     {% else %}
-  <h2>Вы еще не зарегистрированы? Зрегистрируйтесь чтобы оформлять заказы онлайн!</h2>
+  <h2>Вы еще не зарегистрированы? Зарегистрируйтесь чтобы оформлять заказы онлайн!</h2>
         <p>
             <a class="btn btn-primary" href="/register">Зарегистрироваться</a>
           </p>
