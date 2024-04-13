@@ -28,7 +28,10 @@ def index():
 @app.route('/news')
 def news():
     form = NewsForm()
-    return render_template("news.html", form=form)
+    db_sess = db_session.create_session()
+    paper = db_sess.query(News).all()  # ВОЗВРАЩАЕТ СПИСОК КЛАССОВ НЬЮС
+    print(paper[0].title, '=========================================================================================')
+    return render_template("news.html", form=form, paper=paper)
 
 
 @app.route('/req')
@@ -44,38 +47,13 @@ def autos():
 @app.route('/cabinet')
 def cabinet():
     return render_template("cabinet.html")
+# ================================================================USER==============================================
 
 
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.query(User).get(user_id)
-
-
-@app.route('/register', methods=['GET', 'POST'])
-def reqister():
-    form = RegisterForm()
-    if form.validate_on_submit():
-        if form.password.data != form.password_again.data:
-            return render_template('register.html', title='Register', form=form,
-                                   message="Пароли не совпадают")
-        db_sess = db_session.create_session()
-        if db_sess.query(User).filter(User.email == form.email.data).first():
-            return render_template('register.html', title='Register', form=form,
-                                   message="Адресс электронной почты уже используется")
-        user = User(
-            name=form.name.data,
-            surname=form.surname.data,
-            age=form.age.data,
-            login=form.login.data,
-            email=form.email.data,
-            modified_data=datetime.date.today()
-        )
-        user.set_password(form.password.data)
-        db_sess.add(user)
-        db_sess.commit()
-        return redirect('/')
-    return render_template('register.html', title='Регистрация', form=form)
 
 
 @app.route('/logout')
@@ -98,6 +76,36 @@ def login():
     return render_template('login.html', form=form)
 
 
+@app.route('/register', methods=['GET', 'POST'])
+def reqister():
+    form = RegisterForm()
+    print(0)
+    if form.is_submitted():
+        print(2)
+        if form.password.data != form.password_again.data:
+            return render_template('register.html', title='Register', form=form,
+                                   message="Пароли не совпадают")
+        db_sess = db_session.create_session()
+        if db_sess.query(User).filter(User.email == form.email.data).first():
+            return render_template('register.html', title='Register', form=form,
+                                   message="Адресс электронной почты уже используется")
+        user = User(
+            name=form.name.data,
+            surname=form.surname.data,
+            age=form.age.data,
+            email=form.email.data,
+            type=-1,
+            other=0
+        )
+        user.set_password(form.password.data)
+        db_sess.add(user)
+        db_sess.commit()
+        return redirect('/')
+    print('no')
+    return render_template('register.html', title='Регистрация', form=form)
+
+
+# ============================================================================REQUEST==================================
 @app.route('/requ',  methods=['GET', 'POST'])
 @login_required
 def add_requ():
@@ -122,8 +130,8 @@ def edit_requ(id):
     form = RequForm()
     if request.method == "GET":
         db_sess = db_session.create_session()
-        requ = db_sess.query(Requ).filter(News.id == id,
-                                          News.id_for == current_user
+        requ = db_sess.query(Requ).filter(Requ.id == id,
+                                          Requ.id_for == current_user.id
                                           ).first()
         if requ:
             form.title.data = requ.title
@@ -132,8 +140,8 @@ def edit_requ(id):
             abort(404)
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        requ = db_sess.query(Requ).filter(News.id == id,
-                                          News.id_for == current_user
+        requ = db_sess.query(Requ).filter(Requ.id == id,
+                                          Requ.id_for == current_user.id
                                           ).first()
         if requ:
             requ.title = form.title.data
@@ -152,8 +160,8 @@ def edit_requ(id):
 @login_required
 def requ_delete(id):
     db_sess = db_session.create_session()
-    requ = db_sess.query(Requ).filter(News.id == id,
-                                      News.id_for == current_user
+    requ = db_sess.query(Requ).filter(Requ.id == id,
+                                      Requ.id_for == current_user.id
                                       ).first()
     if requ:
         db_sess.delete(requ)
@@ -163,6 +171,7 @@ def requ_delete(id):
     return redirect('/')
 
 
+# ==========================================================================NEWS========================================
 @app.route('/news',  methods=['GET', 'POST'])
 @login_required
 def add_news():
@@ -172,9 +181,7 @@ def add_news():
         news = News()
         news.title = form.title.data
         news.content = form.content.data
-        news.data_on = datetime.date.today()
-        current_user.news.append(news)
-        db_sess.merge(current_user)
+        db_sess.add(news)
         db_sess.commit()
         return redirect('/')
     return render_template('news.html', title='Добавление новости',
@@ -188,7 +195,7 @@ def edit_news(id):
     if request.method == "GET":
         db_sess = db_session.create_session()
         news = db_sess.query(News).filter(News.id == id,
-                                          News.id_whom == current_user
+                                          News.id_whom == current_user.id
                                           ).first()
         if news:
             form.title.data = news.title
@@ -198,7 +205,7 @@ def edit_news(id):
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         news = db_sess.query(News).filter(News.id == id,
-                                          News.id_whom == current_user
+                                          News.id_whom == current_user.id
                                           ).first()
         if news:
             news.title = form.title.data
@@ -218,7 +225,7 @@ def edit_news(id):
 def news_delete(id):
     db_sess = db_session.create_session()
     news = db_sess.query(News).filter(News.id == id,
-                                      News.id_whom == current_user
+                                      News.id_whom == current_user.id
                                       ).first()
     if news:
         db_sess.delete(news)
@@ -228,6 +235,7 @@ def news_delete(id):
     return redirect('/')
 
 
+# ===========================================================================ГЛАВНАЯ-ПРОГРАММА================================
 def main():
     db_session.global_init("db/test.db")
 
