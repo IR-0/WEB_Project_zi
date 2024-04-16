@@ -12,7 +12,9 @@
           <a class="btn btn-primary" href="/news">Новости</a>
         </li>
         <li>
-          <a class="btn btn-primary" href="/autos">Автопарк</a>
+            {% if current_user.is_authenticated %}
+          <a class="btn btn-primary" href="/autos/0">Автопарк</a>
+            {% endif %}
         </li>
         <li>
           <a class="btn btn-primary" href="/req">Ассортимент услуг</a>
@@ -34,11 +36,11 @@
       </ul>
     </nav>
 <br>
-
-{% block content %} {%endblock%}<br>
+<h5>======================================================================================</h5>
+{% block content %} {%endblock%}
 <br>
-
+<br>
+<br>
+<h5>======================================================================================</h5>
 2024, компания xxx<br>
-
-
 </body></html>

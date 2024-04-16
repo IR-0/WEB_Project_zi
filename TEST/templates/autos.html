@@ -3,21 +3,22 @@
 {% block content %}
 <h1 align="center">Бесплатная база авто</h1>
 <br>
-<h4> мы блаблабла люблю котиков 455</h4>
 {% for elem in listt %}
     <div>
-  <img src="...">
-
-      <p><h3>{{{mark}}}</h3></p>
-      <p><h3>{{{mark_rus}}}</h3></p>
-      <p></p>
-      <p><h4>{{{model}}}</h4></p>
-      <p><h4>{{{generation}}}</h4></p>
-      <p></p>
-      <p><h4>{{{jahre_out}}}</h4></p>
-      <p><h4>{{{jahre_in}}}</h4></p>
+  <!-- <img src="{{elem.image}}"> -->
+        <h4 align="center">{{elem.id}}</h4>
+      <p><h3 align="center"> {{ elem.mark }} / {{ elem.mark_rus }}</h3></p>
+      <p> </p>
+      <p><h4> {{ elem.model }} {{ elem.generation }}</h4></p>
+      <p> </p>
+      <p><h4> {{ elem.jahre_out }} - {{ elem.jahre_in }} гг</h4></p>
 
     </div>
 {% endfor %}
-
+{% if count > 0 %}
+<a class="btn btn-primary" href="/autos/{{count-1}}">предыдущее</a>
+{% endif %}
+{% if kodon %}
+<a class="btn btn-primary" href="/autos/{{count+1}}">следущее</a>
+{% endif %}
 {% endblock %}

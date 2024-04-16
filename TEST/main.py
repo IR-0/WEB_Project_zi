@@ -50,10 +50,11 @@ def req():
 
 
 @app.route('/autos/<int:count>')
-def autos():
+def autos(count):
     db_sess = db_session.create_session()
-    listt = db_sess.query(User).all()
-    return render_template("autos.html", listt=listt)
+    listt = db_sess.query(Autos).filter(10 * count < Autos.id, Autos.id < 10 * (count + 1)).all()
+    if listt:
+        return render_template("autos.html", listt=listt, count=count, kodon=(len(listt) == 9))
 
 
 @app.route('/cabinet')
