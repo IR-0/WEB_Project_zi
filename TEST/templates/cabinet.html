@@ -18,7 +18,9 @@
 
     <h4>Здравствуйте, {{ current_user.name }} {{ current_user.surname }}</h4>
 
-    {% if current_user.other['nomer'] %}
+    {% if current_user.other %}
+    <h4>{{current_user.other}}</h4>
+    {% endif %}
 </nav>
 </body>
 </html>

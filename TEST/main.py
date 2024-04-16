@@ -20,35 +20,35 @@ api = Api()
 login_manager = LoginManager()
 login_manager.init_app(app)
 KONTAKTS = {}
+USER = None
 
 
 @app.route("/")
-def index():  # <h2>Вы еще не зарегистрированы? Зарегистрируйтесь чтобы оформлять заказы онлайн!</h2>
-    return render_template("index.html", kont=KONTAKTS.items())
+def index():
+    global USER
+    USER = int(str(current_user).split(' ')[1])  # КОСТЫЛЬ НА КОТОРОМ ДЕРЖИТСЯ ВСЕЛЕННАЯ
+    return render_template("index.html",
+                           kont=KONTAKTS.items())
 
 
-@app.route('/news')
-def news():
+@app.route('/news/<int:count>')
+def news(count):
     form = NewsForm()
     db_sess = db_session.create_session()
-    par = db_sess.query(News).all()  # ВОЗВРАЩАЕТ СПИСОК КЛАССОВ НЬЮС
-    paper = []
-    for elem in par:
-        dictt = {}
-        dictt['title'] = elem.title
-        dictt['content'] = elem.content
-        dictt['data_on'] = elem.data_on
-        dictt['id_whom'] = elem.id_whom
-        paper.append(dictt)
-    print(paper, '=========================================================================================')
-    return render_template("news.html", form=form, paper=paper)  # TODO как передать аргументы в news.html (32ая строка)
-# TODO и в cabinet.html как передать адрес картинки в src (13 строка)
+    par = db_sess.query(News).filter(10 * count < News.id, News.id < 10 * (count + 1)).all()  # ВОЗВРАЩАЕТ СПИСОК 10и КЛАССОВ НЬЮС
+    return render_template("news.html",
+                           form=form,
+                           paper=par,
+                           count=count,
+                           kodon=(len(par) == 9))
 
 
 @app.route('/req')
 def req():
     form = RequForm()
-    return render_template("req.html", form=form)
+    return render_template("req.html",
+                           form=form,
+                           kont=KONTAKTS.items())
 
 
 @app.route('/autos/<int:count>')
@@ -56,7 +56,10 @@ def autos(count):
     db_sess = db_session.create_session()
     listt = db_sess.query(Autos).filter(10 * count < Autos.id, Autos.id < 10 * (count + 1)).all()
     if listt:
-        return render_template("autos.html", listt=listt, count=count, kodon=(len(listt) == 9))
+        return render_template("autos.html",
+                               listt=listt,
+                               count=count,
+                               kodon=(len(listt) == 9))
 
 
 @app.route('/cabinet')
@@ -86,9 +89,12 @@ def login():
         user = db_sess.query(User).filter(User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
-            return redirect('/')
-        return render_template('login.html', message='Неправильный логин или пароль', form=form)
-    return render_template('login.html', form=form)
+            return redirect('/cabinet')
+        return render_template('login.html',
+                               message='Неправильный логин или пароль',
+                               form=form)
+    return render_template('login.html',
+                           form=form)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -98,11 +104,15 @@ def reqister():
     if form.is_submitted():
         print(2)
         if form.password.data != form.password_again.data:
-            return render_template('register.html', title='Register', form=form,
+            return render_template('register.html',
+                                   title='Register',
+                                   form=form,
                                    message="Пароли не совпадают")
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
-            return render_template('register.html', title='Register', form=form,
+            return render_template('register.html',
+                                   title='Register',
+                                   form=form,
                                    message="Адресс электронной почты уже используется")
         user = User(
             name=form.name.data,
@@ -110,14 +120,16 @@ def reqister():
             age=form.age.data,
             email=form.email.data,
             type=-1,
-            other={'image': None, 'nomer': None, 'contakt': None}
+            other='nomer:NaN contakt:NaN image:NaN'
         )
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
-        return redirect('/')
+        return redirect('/cabinet')
     print('no')
-    return render_template('register.html', title='Регистрация', form=form)
+    return render_template('register.html',
+                           title='Регистрация',
+                           form=form)
 
 
 # ============================================================================REQUEST==================================
@@ -135,7 +147,8 @@ def add_requ():
         db_sess.merge(current_user)
         db_sess.commit()
         return redirect('/')
-    return render_template('requ.html', title='Добавление заказа',
+    return render_template('requ.html',
+                           title='Добавление заказа',
                            form=form)
 
 
@@ -146,7 +159,7 @@ def edit_requ(id):
     if request.method == "GET":
         db_sess = db_session.create_session()
         requ = db_sess.query(Requ).filter(Requ.id == id,
-                                          Requ.id_for == current_user.id
+                                          Requ.id_for == USER
                                           ).first()
         if requ:
             form.title.data = requ.title
@@ -156,7 +169,7 @@ def edit_requ(id):
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         requ = db_sess.query(Requ).filter(Requ.id == id,
-                                          Requ.id_for == current_user.id
+                                          Requ.id_for == USER
                                           ).first()
         if requ:
             requ.title = form.title.data
@@ -176,7 +189,7 @@ def edit_requ(id):
 def requ_delete(id):
     db_sess = db_session.create_session()
     requ = db_sess.query(Requ).filter(Requ.id == id,
-                                      Requ.id_for == current_user.id
+                                      Requ.id_for == USER
                                       ).first()
     if requ:
         db_sess.delete(requ)
@@ -196,10 +209,12 @@ def add_news():
         news = News()
         news.title = form.title.data
         news.content = form.content.data
+        news.id_whom = USER
         db_sess.add(news)
         db_sess.commit()
-        return redirect('/')
-    return render_template('news.html', title='Добавление новости',
+        return redirect('/news/0')
+    return render_template('news.html',
+                           title='Добавление новости',
                            form=form)
 
 
@@ -210,7 +225,7 @@ def edit_news(id):
     if request.method == "GET":
         db_sess = db_session.create_session()
         news = db_sess.query(News).filter(News.id == id,
-                                          News.id_whom == current_user.id
+                                          News.id_whom == USER
                                           ).first()
         if news:
             form.title.data = news.title
@@ -220,7 +235,7 @@ def edit_news(id):
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         news = db_sess.query(News).filter(News.id == id,
-                                          News.id_whom == current_user.id
+                                          News.id_whom == USER
                                           ).first()
         if news:
             news.title = form.title.data
@@ -240,7 +255,7 @@ def edit_news(id):
 def news_delete(id):
     db_sess = db_session.create_session()
     news = db_sess.query(News).filter(News.id == id,
-                                      News.id_whom == current_user.id
+                                      News.id_whom == USER
                                       ).first()
     if news:
         db_sess.delete(news)
@@ -257,7 +272,8 @@ def main():
 
     sess = db_session.create_session()
     nomers = sess.query(User).filter(User.type == 0).all()
-    ''' user.other имеет вид около-csv строки, где разделитель пробел: 
+    ''' User.other имеет вид около-csv строки, где разделитель пробел: 
+      [0]                          [1]                        [2]
     "nomer:<автомобильный номер> contakt:<телефонный номер> image:<путь>" '''
     for nomer in nomers:
         vdrug = nomer.other.split(' ')[1]  # разбиение информации на части, взятие телефонного номера

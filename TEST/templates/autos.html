@@ -5,7 +5,7 @@
 <br>
 {% for elem in listt %}
     <div>
-  <!-- <img src="{{elem.image}}"> -->
+        {% if elem.image %} <img src="E:\Новая папка (2)\ordnung und sauberkeit\site_auto\TEST\static\img\auto\auto{{elem.id}}.png"> {% endif %}
         <h4 align="center">{{elem.id}}</h4>
       <p><h3 align="center"> {{ elem.mark }} / {{ elem.mark_rus }}</h3></p>
       <p> </p>
@@ -15,10 +15,11 @@
 
     </div>
 {% endfor %}
+
 {% if count > 0 %}
-<a class="btn btn-primary" href="/autos/{{count-1}}">предыдущее</a>
+    <a class="btn btn-primary" href="/autos/{{count-1}}">предыдущее</a>
 {% endif %}
 {% if kodon %}
-<a class="btn btn-primary" href="/autos/{{count+1}}">следущее</a>
+    <a class="btn btn-primary" href="/autos/{{count+1}}">следущее</a>
 {% endif %}
 {% endblock %}

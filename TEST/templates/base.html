@@ -9,13 +9,13 @@
           <a class="btn btn-primary" href="/">О нас</a>
         </li>
         <li>
-          <a class="btn btn-primary" href="/news">Новости</a>
+          <a class="btn btn-primary" href="/news/0">Новости</a>
         </li>
+      {% if current_user.is_authenticated %}
         <li>
-            {% if current_user.is_authenticated %}
           <a class="btn btn-primary" href="/autos/0">Автопарк</a>
-            {% endif %}
         </li>
+      {% endif %}
         <li>
           <a class="btn btn-primary" href="/req">Ассортимент услуг</a>
         </li>
@@ -23,6 +23,7 @@
             {% if current_user.is_authenticated %}
             <a class="btn btn-primary" href="/cabinet">Личный кабинет</a>
             {% else %}
+            <h4><b>Вы еще не зарегистрированы? Зарегистрируйтесь чтобы оформлять заказы онлайн!</b></h4>
             <a class="btn btn-primary" href="/register">Зарегистрироваться</a>
             {% endif %}
         </li>

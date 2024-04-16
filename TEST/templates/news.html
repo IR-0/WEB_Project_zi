@@ -2,7 +2,7 @@
 {% block content %}
 <h1 align="center">Последние события</h1>
 <br>
-<h1>Наши новости</h1>
+
 {% if current_user.is_authenticated %}
     <h4>Добавить новость:</h4>
     <form action="" method="post">
@@ -29,12 +29,21 @@
         {{message}}
     </form>
 {% endif %}
+<h5>---------------------------------------------------------------------------</h5>
 {% for itemm in paper%}
     <div>
-        <h4>{{{ itemm.title }}}</h4>
-        <h5>{{{ itemm.data_on }}}</h5>
-        <p>{{{ itemm.content }}}</p>
+        <h4 align="center">{{ itemm.title }}</h4>
+        <h6>{{ itemm.data_on }}</h6>
+        <p>{{ itemm.content }}</p>
+        <h5>---------------------------------------------------------------------------</h5>
     </div>
 {% endfor %}
+
+{% if count > 0 %}
+    <a class="btn btn-primary" href="/autos/{{count-1}}">предыдущее</a>
+{% endif %}
+{% if kodon %}
+    <a class="btn btn-primary" href="/autos/{{count+1}}">следущее</a>
+{% endif %}
 
 {% endblock %}
