@@ -1,3 +1,4 @@
+import sqlalchemy
 from flask import Flask, render_template, redirect, request, abort
 from flask_restful import Api
 from data import db_session
@@ -18,11 +19,12 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 api = Api()
 login_manager = LoginManager()
 login_manager.init_app(app)
+KONTAKTS = {}
 
 
 @app.route("/")
-def index():
-    return render_template("index.html")
+def index():  # <h2>Вы еще не зарегистрированы? Зарегистрируйтесь чтобы оформлять заказы онлайн!</h2>
+    return render_template("index.html", kont=KONTAKTS.items())
 
 
 @app.route('/news')
@@ -108,7 +110,7 @@ def reqister():
             age=form.age.data,
             email=form.email.data,
             type=-1,
-            other=0
+            other={'image': None, 'nomer': None, 'contakt': None}
         )
         user.set_password(form.password.data)
         db_sess.add(user)
@@ -250,7 +252,16 @@ def news_delete(id):
 
 # ===========================================================================ГЛАВНАЯ-ПРОГРАММА================================
 def main():
+    global KONTAKTS
     db_session.global_init("db/test.db")
+
+    sess = db_session.create_session()
+    nomers = sess.query(User).filter(User.type == 0).all()
+    ''' user.other имеет вид около-csv строки, где разделитель пробел: 
+    "nomer:<автомобильный номер> contakt:<телефонный номер> image:<путь>" '''
+    for nomer in nomers:
+        vdrug = nomer.other.split(' ')[1]  # разбиение информации на части, взятие телефонного номера
+        KONTAKTS[nomer.name + ' ' + nomer.surname] = vdrug[vdrug.index(':') + 1:]
 
     app.run()
 

@@ -13,5 +13,7 @@
 юю</h4>
 <br>
 <h2>Контакты:</h2>
-<h3>mb</h3>
+{% for pers, nomer in kont %}
+    <h4>{{pers}}: {{nomer}}</h4>
+{% endfor %}
 {% endblock %}
