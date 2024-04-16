@@ -26,7 +26,8 @@ USER = None
 @app.route("/")
 def index():
     global USER
-    USER = int(str(current_user).split(' ')[1])  # КОСТЫЛЬ НА КОТОРОМ ДЕРЖИТСЯ ВСЕЛЕННАЯ
+    if current_user.is_authenticated:
+        USER = int(str(current_user).split(' ')[1])  # КОСТЫЛЬ НА КОТОРОМ ДЕРЖИТСЯ ВСЕЛЕННАЯ
     return render_template("index.html",
                            kont=KONTAKTS.items())
 
@@ -35,7 +36,7 @@ def index():
 def news(count):
     form = NewsForm()
     db_sess = db_session.create_session()
-    par = db_sess.query(News).filter(10 * count < News.id, News.id < 10 * (count + 1)).all()  # ВОЗВРАЩАЕТ СПИСОК 10и КЛАССОВ НЬЮС
+    par = db_sess.query(News).filter(10 * count <= News.id, News.id < 10 * (count + 1)).all()  # ВОЗВРАЩАЕТ СПИСОК 10и КЛАССОВ НЬЮС
     return render_template("news.html",
                            form=form,
                            paper=par,
@@ -54,17 +55,22 @@ def req():
 @app.route('/autos/<int:count>')
 def autos(count):
     db_sess = db_session.create_session()
-    listt = db_sess.query(Autos).filter(10 * count < Autos.id, Autos.id < 10 * (count + 1)).all()
+    listt = db_sess.query(Autos).filter(10 * count <= Autos.id, Autos.id < 10 * (count + 1)).all()
     if listt:
         return render_template("autos.html",
                                listt=listt,
                                count=count,
-                               kodon=(len(listt) == 9))
+                               kodon=(len(listt) == 10))
 
 
 @app.route('/cabinet')
 def cabinet():
-    return render_template("cabinet.html")
+    db_sess = db_session.create_session()
+    userr = db_sess.query(User).filter(User.id == current_user.id).first()
+    other = []
+    for i in userr.other.split(' '):
+        other.append(i[i.index(':') + 1:])
+    return render_template("cabinet.html", other=other)
 # ================================================================USER==============================================
 
 
@@ -133,7 +139,7 @@ def reqister():
 
 
 # ============================================================================REQUEST==================================
-@app.route('/requ',  methods=['GET', 'POST'])
+@app.route('/req',  methods=['GET', 'POST'])
 @login_required
 def add_requ():
     form = RequForm()
@@ -143,16 +149,16 @@ def add_requ():
         requ.title = form.title.data
         requ.content = form.content.data
         requ.data_on = datetime.date.today()
-        current_user.news.append(news)
-        db_sess.merge(current_user)
+        requ.id_for = USER
+        db_sess.add(requ)
         db_sess.commit()
-        return redirect('/')
-    return render_template('requ.html',
+        return redirect('/cabinet')
+    return render_template('req.html',
                            title='Добавление заказа',
                            form=form)
 
 
-@app.route('/requ/<int:id>', methods=['GET', 'POST'])
+@app.route('/req/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_requ(id):
     form = RequForm()
@@ -175,16 +181,16 @@ def edit_requ(id):
             requ.title = form.title.data
             requ.content = form.content.data
             db_sess.commit()
-            return redirect('/')
+            return redirect('/cabinet')
         else:
             abort(404)
-    return render_template('requ.html',
+    return render_template('req.html',
                            title='Редактирование заказа',
                            form=form
                            )
 
 
-@app.route('/requ_delete/<int:id>', methods=['GET', 'POST'])
+@app.route('/req_delete/<int:id>', methods=['GET', 'POST'])
 @login_required
 def requ_delete(id):
     db_sess = db_session.create_session()
@@ -196,20 +202,21 @@ def requ_delete(id):
         db_sess.commit()
     else:
         abort(404)
-    return redirect('/')
+    return redirect('/cabinet')
 
 
 # ==========================================================================NEWS========================================
-@app.route('/news',  methods=['GET', 'POST'])
+@app.route('/news/<int:count>',  methods=['GET', 'POST'])
 @login_required
-def add_news():
+def add_news(count):
     form = NewsForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         news = News()
         news.title = form.title.data
         news.content = form.content.data
-        news.id_whom = USER
+        print(USER, current_user, '====================================================================================')
+        news.id_whom = USER  # TODO не хочет запоминать значение переменной USER (ОНА НЕ ПУСТА)
         db_sess.add(news)
         db_sess.commit()
         return redirect('/news/0')

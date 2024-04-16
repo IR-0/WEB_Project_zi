@@ -9,17 +9,24 @@
     <p><a class="btn btn-primary" href="/">Главная</a></p>
     <br>
     <a class="navbar-brand" href="/logout">Выйти из аккаунта</a>
-
-    {% if current_user.other %}
-    {% if current_user.other[image] %}
-        <img src="{url_for('static', filename='img/{{current_user.id}}.png')}" >
-    {% endif %}
+<br>
+    {% if other %}
+        <img src="{url_for('static', filename='\img\users\user{{current_user.id}}.png')}" >
     {% endif %}
 
     <h4>Здравствуйте, {{ current_user.name }} {{ current_user.surname }}</h4>
 
-    {% if current_user.other %}
-    <h4>{{current_user.other}}</h4>
+    {% if other[0] %}
+    <h4>Номер вашего автомобиля: {{other[0]}}</h4>
+    <br>
+    {% endif %}
+
+    {% if other[1] %}
+    <h4>Ваш телефонный номер: {{other[1]}}</h4>
+    <br>
+    {% else %}
+    <h4>Еще не указали телефонный номер?</h4>
+    <br>
     {% endif %}
 </nav>
 </body>

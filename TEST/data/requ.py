@@ -2,6 +2,7 @@ import sqlalchemy
 from sqlalchemy import orm
 from .db_session import SqlAlchemyBase
 from sqlalchemy_serializer import SerializerMixin
+import datetime
 
 
 class Requ(SqlAlchemyBase, SerializerMixin):
@@ -10,7 +11,7 @@ class Requ(SqlAlchemyBase, SerializerMixin):
                            primary_key=True, autoincrement=True)
     title = sqlalchemy.Column(sqlalchemy.String)
     content = sqlalchemy.Column(sqlalchemy.String)
-    date_on = sqlalchemy.Column(sqlalchemy.DateTime)
+    date_on = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
     id_for = sqlalchemy.Column(sqlalchemy.Integer)  # , sqlalchemy.ForeignKey("users.id")
     id_in = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"))
     user = orm.relationship('User')

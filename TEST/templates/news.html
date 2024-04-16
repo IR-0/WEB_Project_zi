@@ -32,7 +32,7 @@
 <h5>---------------------------------------------------------------------------</h5>
 {% for itemm in paper%}
     <div>
-        <h4 align="center">{{ itemm.title }}</h4>
+        <h4 align="center">{{itemm.id}}, {{ itemm.title }}</h4>
         <h6>{{ itemm.data_on }}</h6>
         <p>{{ itemm.content }}</p>
         <h5>---------------------------------------------------------------------------</h5>
@@ -40,10 +40,10 @@
 {% endfor %}
 
 {% if count > 0 %}
-    <a class="btn btn-primary" href="/autos/{{count-1}}">предыдущее</a>
+    <a class="btn btn-primary" href="/news/{{count-1}}">предыдущее</a>
 {% endif %}
 {% if kodon %}
-    <a class="btn btn-primary" href="/autos/{{count+1}}">следущее</a>
+    <a class="btn btn-primary" href="/news/{{count+1}}">следущее</a>
 {% endif %}
 
 {% endblock %}
