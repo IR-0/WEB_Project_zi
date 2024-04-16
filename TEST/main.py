@@ -45,12 +45,15 @@ def news():
 
 @app.route('/req')
 def req():
-    return render_template("req.html")
+    form = RequForm()
+    return render_template("req.html", form=form)
 
 
-@app.route('/autos')
+@app.route('/autos/<int:count>')
 def autos():
-    return render_template("autos.html")
+    db_sess = db_session.create_session()
+    listt = db_sess.query(User).all()
+    return render_template("autos.html", listt=listt)
 
 
 @app.route('/cabinet')

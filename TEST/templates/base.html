@@ -2,23 +2,42 @@
 <html lang="en"><head>
 
 
-    <meta charset="UTF-8"><title>АТП</title><style type="text/css"></style></head><body>
+    <meta charset="UTF-8"><title>АТП</title></head><body>
 <nav>
-    </nav><a class="btn btn-primary" href="/">О нас</a>&nbsp;&nbsp;&nbsp; <a class="btn btn-primary" href="/news">Новости</a> <a class="btn btn-primary" href="/autos">Автопарк</a><br>
-<a class="btn btn-primary" href="/cabinet">Личный кабинет</a> <br>
-<p>{% if current_user.is_authenticated %} <a class="navbar-brand" href="/logout">выйти</a>
-    {% else %}
-        </p>
-<p>
-            </p><a class="btn btn-primary" href="/register">Зарегистрироваться</a>
+  <ul>
+        <li>
+          <a class="btn btn-primary" href="/">О нас</a>
+        </li>
+        <li>
+          <a class="btn btn-primary" href="/news">Новости</a>
+        </li>
+        <li>
+          <a class="btn btn-primary" href="/autos">Автопарк</a>
+        </li>
+        <li>
+          <a class="btn btn-primary" href="/req">Ассортимент услуг</a>
+        </li>
+        <li>
+            {% if current_user.is_authenticated %}
+            <a class="btn btn-primary" href="/cabinet">Личный кабинет</a>
+            {% else %}
+            <a class="btn btn-primary" href="/register">Зарегистрироваться</a>
+            {% endif %}
+        </li>
+        <li>
+            {% if current_user.is_authenticated %}
+            <a class="navbar-brand" href="/logout">выйти</a>
+            {% else %}
             <a class="btn btn-primary" href="/login">Войти</a>
-<p>
-        </p>
-
-    {% endif %}
+            {% endif %}
+        </li>
+      </ul>
+    </nav>
+<br>
 
 {% block content %} {%endblock%}<br>
 <br>
+
 2024, компания xxx<br>
 
 
