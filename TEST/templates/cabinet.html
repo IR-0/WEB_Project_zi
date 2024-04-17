@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" type="text/css" href="static/css/style.css" />
     <meta charset="UTF-8">
     <title>Аккаунт</title>
 </head>
@@ -15,19 +16,58 @@
     {% endif %}
 
     <h4>Здравствуйте, {{ current_user.name }} {{ current_user.surname }}</h4>
-
+    <h4>Ваша почта, с помощью которой с вами свяжутся: {{current_user.email}}</h4>
     {% if other[0] %}
-    <h4>Номер вашего автомобиля: {{other[0]}}</h4>
-    <br>
+        <h4>Номер вашего автомобиля: {{other[0]}}</h4>
+        <br>
     {% endif %}
 
     {% if other[1] %}
-    <h4>Ваш телефонный номер: {{other[1]}}</h4>
-    <br>
+        <h4>Ваш телефонный номер: {{other[1]}}</h4>
+        <br>
     {% else %}
-    <h4>Еще не указали телефонный номер?</h4>
+        <h4>Еще не указали телефонный номер?</h4>
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.content.label }}<br>
+                {{ form.content(class="form-control") }}<br>
+                {% for error in form.content.errors %}
+                    <p class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </p>
+                {% endfor %}
+            </p>
+            <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+        </form>
     <br>
     {% endif %}
+
+{% if reqs %}
+    <h2 align="center"> Ваши заказы:</h2>
+    {% for j in reqs0 %}
+        <h4>номер: {{j.id}}, дата: {{j.date_on}}</h4>
+        <h3>{{j.title}}</h3>
+        <h3>{{j.content}}</h3>
+        {% if j.id_in %}<h3>Рассмотрен: Да</h3>{% else %}<h3>Рассмотрен: Ещё нет</h3>{% endif %}
+        <br>
+    {% endfor %}
+{% endif %}
+
+{% if current_user.type == 0 or current_user.type == 1 %}
+    <h2 align="center">На рассмотрение</h2>
+    {% for k in reqs1 %}
+        <h4>номер: {{k.id}}, дата: {{k.date_on}}, от кого: {{k.id_for}}</h4>
+        <h3>{{k.title}}</h3>
+        <h3>{{k.content}}</h3>
+        {% if k.id_in %}
+            <h3>Рассмотрен: Да</h3>
+        {% else %}
+            <h3>Рассмотрен: Ещё нет</h3>
+        {% endif %}
+        <br>
+    {% endfor %}
+{% endif %}
 </nav>
 </body>
 </html>

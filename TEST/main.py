@@ -9,8 +9,9 @@ from data.autos import Autos
 from forms.user import RegisterForm
 from forms.new import NewsForm
 from forms.req import RequForm
+from forms.loginform import LoginForm
+from forms.default_form import Form
 from flask_login import LoginManager, login_required, logout_user, login_user, current_user
-from loginform import LoginForm
 import datetime
 
 
@@ -33,15 +34,18 @@ def index():
 
 
 @app.route('/news/<int:count>')
-def news(count):
+def news(count):  # TODO не работает css файл, пишет "GET /news/static/css/style.css HTTP/1.1" 404 - и "GET /autos/static/css/style.css HTTP/1.1" 404 -
+
     form = NewsForm()
     db_sess = db_session.create_session()
-    par = db_sess.query(News).filter(10 * count <= News.id, News.id < 10 * (count + 1)).all()  # ВОЗВРАЩАЕТ СПИСОК 10и КЛАССОВ НЬЮС
+    leng = len(db_sess.query(News).all())
+    par = db_sess.query(News).order_by(News.id.desc()).filter(leng - count * 10 >= News.id,
+                                                              News.id > leng - (10 * (count + 1))).all()  # ВОЗВРАЩАЕТ СПИСОК 10и КЛАССОВ НЬЮС
     return render_template("news.html",
                            form=form,
                            paper=par,
                            count=count,
-                           kodon=(len(par) == 9))
+                           kodon=(len(par) == 10))
 
 
 @app.route('/req')
@@ -63,14 +67,35 @@ def autos(count):
                                kodon=(len(listt) == 10))
 
 
-@app.route('/cabinet')
+@app.route('/cabinet', methods=['GET', 'POST'])
 def cabinet():
     db_sess = db_session.create_session()
-    userr = db_sess.query(User).filter(User.id == current_user.id).first()
+    user = db_sess.query(User).filter(User.id == current_user.id).first()
+
+    form1 = Form()
+    if form1.validate_on_submit():
+        telefon = form1.content.data
+        auto, posred, img = user.other.split(' ')
+        data = posred[:posred.index(':') + 1] + telefon
+        user.other = auto + ' ' + data + ' ' + img
+        db_sess.commit()
+        return redirect('/cabinet')
+
+    reqs0 = db_sess.query(Requ).filter(Requ.id_for == current_user.id).all()
+    reqs1 = []
+    if current_user.type == 0 or current_user.type == 1:
+        reqs1 = db_sess.query(Requ).all()
+
     other = []
-    for i in userr.other.split(' '):
-        other.append(i[i.index(':') + 1:])
-    return render_template("cabinet.html", other=other)
+    for i in user.other.split(' '):
+        s = i[i.index(':') + 1:]
+        other.append(0 if s == 'NaN' else s)
+
+    return render_template("cabinet.html",
+                           form1=form1,
+                           other=other,
+                           reqs0=reqs0,
+                           reqs1=reqs1)
 # ================================================================USER==============================================
 
 
@@ -106,9 +131,7 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def reqister():
     form = RegisterForm()
-    print(0)
     if form.is_submitted():
-        print(2)
         if form.password.data != form.password_again.data:
             return render_template('register.html',
                                    title='Register',
@@ -131,8 +154,7 @@ def reqister():
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
-        return redirect('/cabinet')
-    print('no')
+        return redirect('/')
     return render_template('register.html',
                            title='Регистрация',
                            form=form)
@@ -216,7 +238,7 @@ def add_news(count):
         news.title = form.title.data
         news.content = form.content.data
         print(USER, current_user, '====================================================================================')
-        news.id_whom = USER  # TODO не хочет запоминать значение переменной USER (ОНА НЕ ПУСТА)
+        news.id_whom = USER
         db_sess.add(news)
         db_sess.commit()
         return redirect('/news/0')

@@ -1,10 +1,37 @@
+/* Обычный */
+@font-face {
+	font-family: 'FontName';
+	font-style: normal;
+	font-weight: normal;
+	src: local('/EoSD.ttf');
+		url('/fonts/CrimsonText-Regular.woff2') format('woff2'),
+		url('/fonts/CrimsonText-Regular.woff') format('woff'),
+		url('/fonts/CrimsonText-Regular.ttf') format('ttf'),
+		url('/fonts/CrimsonText-Regular.eot') format('eot');
+}
+
+.text-1 {
+	font-family: 'Crimson Text';
+}
+
+h5 {
+    color: #000f3f;
+}
 h4 {
-    color: #f7e6f7;
-    padding: 20px;
+    color: #000f3f;
+}
+h3 {
+    color: #000f3f;
+}
+h2 {
+    color: #000f3f;
+}
+h1 {
+    color: #000f3f;
 }
 p {
     font-size: 18pt;
 }
 body {
-    background-color: #fff0e0;
+    background-color: #e0e0ff;
 }

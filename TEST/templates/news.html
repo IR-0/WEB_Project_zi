@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
+<link rel="stylesheet" type="text/css" href="static/css/style.css" />
 <h1 align="center">Последние события</h1>
 <br>
 
-{% if current_user.is_authenticated %}
+{% if current_user.is_authenticated and (current_user.type == 0 or current_user.type == 1)%}
     <h4>Добавить новость:</h4>
     <form action="" method="post">
         {{ form.hidden_tag() }}
