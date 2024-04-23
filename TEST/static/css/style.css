@@ -14,6 +14,16 @@
 	font-family: 'Crimson Text';
 }
 
+.cabinet-name {
+background-color: #c0c0ff;
+}
+
+.main-bottom {
+    background-image: url('fon.png');
+    background-repeat: repeat-x;
+    background-position: bottom;
+}
+
 h5 {
     color: #000f3f;
 }
@@ -34,4 +44,6 @@ p {
 }
 body {
     background-color: #e0e0ff;
+    background: url('fon.png') top repeat-x,
+    url('car1.png') right no-repeat fixed
 }

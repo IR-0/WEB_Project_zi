@@ -72,9 +72,9 @@ def cabinet():
     db_sess = db_session.create_session()
     user = db_sess.query(User).filter(User.id == current_user.id).first()
 
-    form1 = Form()
-    if form1.validate_on_submit():
-        telefon = form1.content.data
+    form = Form()
+    if form.validate_on_submit():
+        telefon = form.content.data
         auto, posred, img = user.other.split(' ')
         data = posred[:posred.index(':') + 1] + telefon
         user.other = auto + ' ' + data + ' ' + img
@@ -82,6 +82,7 @@ def cabinet():
         return redirect('/cabinet')
 
     reqs0 = db_sess.query(Requ).filter(Requ.id_for == current_user.id).all()
+    print(reqs0)
     reqs1 = []
     if current_user.type == 0 or current_user.type == 1:
         reqs1 = db_sess.query(Requ).all()
@@ -92,7 +93,7 @@ def cabinet():
         other.append(0 if s == 'NaN' else s)
 
     return render_template("cabinet.html",
-                           form1=form1,
+                           form=form,
                            other=other,
                            reqs0=reqs0,
                            reqs1=reqs1)

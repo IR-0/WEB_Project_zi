@@ -15,10 +15,10 @@
         <img src="{url_for('static', filename='\img\users\user{{current_user.id}}.png')}" >
     {% endif %}
 
-    <h4>Здравствуйте, {{ current_user.name }} {{ current_user.surname }}</h4>
-    <h4>Ваша почта, с помощью которой с вами свяжутся: {{current_user.email}}</h4>
+    <h4 class="cabinet-name">Здравствуйте, {{ current_user.name }} {{ current_user.surname }}</h4>
+    <h4 class="cabinet-name">Ваша почта, с помощью которой с вами свяжутся: {{current_user.email}}</h4>
     {% if other[0] %}
-        <h4>Номер вашего автомобиля: {{other[0]}}</h4>
+        <h4 class="cabinet-name">Номер вашего автомобиля: {{other[0]}}</h4>
         <br>
     {% endif %}
 
@@ -43,7 +43,7 @@
     <br>
     {% endif %}
 
-{% if reqs %}
+{% if reqs0 %}
     <h2 align="center"> Ваши заказы:</h2>
     {% for j in reqs0 %}
         <h4>номер: {{j.id}}, дата: {{j.date_on}}</h4>
