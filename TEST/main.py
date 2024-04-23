@@ -1,6 +1,7 @@
 import sqlalchemy
 from flask import Flask, render_template, redirect, request, abort
 from flask_restful import Api
+import news_api
 from data import db_session
 from data.users import User
 from data.news import News
@@ -299,6 +300,7 @@ def news_delete(id):
 def main():
     global KONTAKTS
     db_session.global_init("db/test.db")
+    app.register_blueprint(news_api.blueprint)
 
     sess = db_session.create_session()
     nomers = sess.query(User).filter(User.type == 0).all()

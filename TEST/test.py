@@ -3,6 +3,7 @@ from requests import get, post, delete
 
 
 out = 0
+print(get('http://localhost:5000/api/news').json())  # получение всего списка новостей
 """
 print(get('http://localhost:5000/api/jobs').json())
 print(post('http://localhost:5000/api/jobs', json={'id': 16,
@@ -78,5 +79,3 @@ print(delete('http://localhost:5000/api/deljobs/').json())  # false
 
 print(get('http://localhost:5000/api/jobs').json())
 '''
-
-print(get('http://127.0.0.1:5000/news'))
